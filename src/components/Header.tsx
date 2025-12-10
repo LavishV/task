@@ -1,12 +1,26 @@
-﻿import { useState } from "react";
-import { Menu, X, LogOut } from "lucide-react";
+﻿import { useState, useRef, useEffect } from "react";
+import { Menu, X, LogOut, ChevronDown, Layout } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const { isAuthenticated, username, logout } = useAuth();
   const navigate = useNavigate();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const href = e.currentTarget.getAttribute("href");
@@ -22,7 +36,13 @@ export const Header = () => {
 
   const handleLogout = async () => {
     await logout();
+    setIsUserDropdownOpen(false);
     navigate("/login");
+  };
+
+  const handleAdminPanel = () => {
+    setIsUserDropdownOpen(false);
+    navigate("/admin");
   };
 
   return (
@@ -48,23 +68,40 @@ export const Header = () => {
 
           <div className="flex items-center gap-4 border-t md:border-t-0 pt-4 md:pt-0 mt-4 md:mt-0">
             {isAuthenticated ? (
-              <>
-                <div className="flex items-center gap-2">
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  className="flex items-center gap-2 hover:bg-blue-700 px-3 py-2 rounded transition"
+                >
                   <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
                     <span className="text-blue-600 font-bold text-sm">
                       {username?.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <span className="text-sm">{username}</span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 bg-red-500 hover:bg-red-600 px-3 py-2 rounded transition"
-                >
-                  <LogOut size={18} />
-                  <span className="hidden sm:inline">Logout</span>
+                  <ChevronDown size={18} className={`transition-transform ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
-              </>
+                
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50">
+                    <button
+                      onClick={handleAdminPanel}
+                      className="w-full flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-100 transition text-left"
+                    >
+                      <Layout size={18} />
+                      <span>Admin Panel</span>
+                    </button>
+                    <div className="border-t border-gray-200"></div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-3 text-red-600 hover:bg-red-50 transition text-left"
+                    >
+                      <LogOut size={18} />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 <button

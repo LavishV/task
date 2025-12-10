@@ -9,7 +9,7 @@ export const sampleProjects = [
         id: 2,
         name: "Downtown Urban Apartment",
         description: "A stylish apartment in the heart of the city, designed for comfort and minimalistic living.",
-        imageUrl: "https://images.unsplash.com/photo-1598928506311-c55dedc7a9a5?w=600&h=400&fit=crop",
+        imageUrl: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
     },
     {
         id: 3,

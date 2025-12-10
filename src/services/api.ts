@@ -17,20 +17,20 @@ const getApiUrl = (): string => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
-    
+
     console.log('🔍 API URL Detection:');
     console.log('  Window hostname:', hostname);
     console.log('  Is localhost?:', isLocalhost);
     console.log('  Protocol:', window.location.protocol);
     console.log('  Port:', window.location.port);
-    
+
     if (isLocalhost) {
       const url = 'http://localhost:5000/api';
       console.log('  ✅ Using localhost API:', url);
       return url;
     }
   }
-  
+
   // Default to relative path for all non-localhost environments
   console.log('  ✅ Using relative API path: /api');
   return '/api';
@@ -109,13 +109,13 @@ api.interceptors.request.use((config) => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
-  
+
   // Log the actual request URL being made
-  const fullUrl = config.url?.startsWith('http') 
-    ? config.url 
+  const fullUrl = config.url?.startsWith('http')
+    ? config.url
     : `${config.baseURL || ''}${config.url}`;
   console.log(`📤 ${config.method?.toUpperCase()} ${fullUrl}`);
-  
+
   return config;
 });
 
