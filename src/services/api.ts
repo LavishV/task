@@ -1,15 +1,42 @@
 import axios from 'axios';
 import { getFromStorage, setInStorage, removeFromStorage } from '../utils/storage';
 
-// Use relative path /api - works on both localhost (with backend) and Render
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+/**
+ * API URL Detection Logic:
+ * 1. Check if running on localhost (127.0.0.1 or localhost hostname)
+ *    → Use http://localhost:5000/api for local development
+ * 2. Otherwise (Render, production, etc.)
+ *    → ALWAYS use relative /api path (same-origin requests)
+ * 
+ * CRITICAL: Never use environment variable for production URLs
+ * because Vite bakes it into the bundle at build time.
+ */
 
-// Debug logging for API URL detection
-console.log('🔧 API Configuration:');
-console.log('  VITE_API_URL:', import.meta.env.VITE_API_URL || 'undefined (using /api)');
-console.log('  Hostname:', typeof window !== 'undefined' ? window.location.hostname : 'N/A (SSR)');
-console.log('  Resolved API_URL:', API_URL);
-console.log('  Environment:', import.meta.env.MODE);
+const getApiUrl = (): string => {
+  // Only use localhost URL if actually running on localhost
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
+    
+    console.log('🔍 API URL Detection:');
+    console.log('  Window hostname:', hostname);
+    console.log('  Is localhost?:', isLocalhost);
+    console.log('  Protocol:', window.location.protocol);
+    console.log('  Port:', window.location.port);
+    
+    if (isLocalhost) {
+      const url = 'http://localhost:5000/api';
+      console.log('  ✅ Using localhost API:', url);
+      return url;
+    }
+  }
+  
+  // Default to relative path for all non-localhost environments
+  console.log('  ✅ Using relative API path: /api');
+  return '/api';
+};
+
+const API_URL = getApiUrl();
 
 // Helper to extract meaningful error messages
 export const getErrorMessage = (error: unknown): string => {
@@ -59,8 +86,10 @@ const api = axios.create({
   },
 });
 
-// Log successful API initialization
-console.log('✅ Axios instance created with baseURL:', api.defaults.baseURL);
+// Log the configured baseURL
+console.log('📡 Axios Instance Created');
+console.log('  baseURL:', api.defaults.baseURL);
+console.log('  Full request URL will be: baseURL + endpoint');
 
 // Token management using safe storage
 const getAccessToken = () => getFromStorage('accessToken');
@@ -74,12 +103,19 @@ const clearTokens = () => {
   removeFromStorage('refreshToken');
 };
 
-// Request interceptor: Add access token to all requests
+// Request interceptor: Add access token and log requests
 api.interceptors.request.use((config) => {
   const accessToken = getAccessToken();
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
+  
+  // Log the actual request URL being made
+  const fullUrl = config.url?.startsWith('http') 
+    ? config.url 
+    : `${config.baseURL || ''}${config.url}`;
+  console.log(`📤 ${config.method?.toUpperCase()} ${fullUrl}`);
+  
   return config;
 });
 
