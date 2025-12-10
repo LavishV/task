@@ -88,11 +88,10 @@ export const ContactForm = () => {
             </button>
           </form>
           {message && (
-            <div className={`mt-4 p-4 rounded-lg flex items-start gap-3 ${
-              message.includes('successfully') 
+            <div className={`mt-4 p-4 rounded-lg flex items-start gap-3 ${message.includes('successfully')
                 ? 'bg-green-100 border border-green-400'
                 : 'bg-red-100 border border-red-400'
-            }`}>
+              }`}>
               <span className={message.includes('successfully') ? 'text-green-600 text-xl' : 'text-red-600 text-xl'}>
                 {message.includes('successfully') ? '✓' : '✕'}
               </span>

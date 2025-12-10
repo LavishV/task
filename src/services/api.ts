@@ -55,16 +55,64 @@ const api = axios.create({
   },
 });
 
-// Token management
-const getAccessToken = () => localStorage.getItem('accessToken');
-const getRefreshToken = () => localStorage.getItem('refreshToken');
+// Safe storage with fallback to in-memory storage
+// Fixes: "Access to storage is not allowed" error on Render
+const memoryStorage: Record<string, string> = {};
+let storageAvailable = false;
+
+try {
+  const testKey = '__storage_test__';
+  localStorage.setItem(testKey, testKey);
+  localStorage.removeItem(testKey);
+  storageAvailable = true;
+} catch (e) {
+  console.warn('localStorage unavailable, using in-memory storage');
+  storageAvailable = false;
+}
+
+const getFromStorage = (key: string): string | null => {
+  try {
+    if (storageAvailable) {
+      return localStorage.getItem(key);
+    }
+    return memoryStorage[key] || null;
+  } catch (e) {
+    return memoryStorage[key] || null;
+  }
+};
+
+const setInStorage = (key: string, value: string) => {
+  try {
+    if (storageAvailable) {
+      localStorage.setItem(key, value);
+    }
+  } catch (e) {
+    console.warn(`Storage write failed for ${key}, using memory`);
+  }
+  memoryStorage[key] = value;
+};
+
+const removeFromStorage = (key: string) => {
+  try {
+    if (storageAvailable) {
+      localStorage.removeItem(key);
+    }
+  } catch (e) {
+    // continue
+  }
+  delete memoryStorage[key];
+};
+
+// Token management (now using safe storage)
+const getAccessToken = () => getFromStorage('accessToken');
+const getRefreshToken = () => getFromStorage('refreshToken');
 const setTokens = (accessToken: string, refreshToken: string) => {
-  localStorage.setItem('accessToken', accessToken);
-  localStorage.setItem('refreshToken', refreshToken);
+  setInStorage('accessToken', accessToken);
+  setInStorage('refreshToken', refreshToken);
 };
 const clearTokens = () => {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
+  removeFromStorage('accessToken');
+  removeFromStorage('refreshToken');
 };
 
 // Request interceptor: Add access token to all requests

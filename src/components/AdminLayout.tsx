@@ -22,9 +22,13 @@ export const AdminLayout = () => {
       navigate('/admin/login');
     } catch (error) {
       console.error('Logout error:', error);
-      // Clear tokens even if logout fails
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      // Clear tokens even if logout fails (safely)
+      try {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      } catch (e) {
+        console.warn('Storage cleanup failed, continuing');
+      }
       navigate('/admin/login');
     } finally {
       setLoggingOut(false);
