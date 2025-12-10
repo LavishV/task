@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Use relative path /api in production (Render), localhost for development
+const API_URL = import.meta.env.VITE_API_URL || (
+  typeof window !== 'undefined' && window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/api'
+    : '/api'
+);
 
 const api = axios.create({
   baseURL: API_URL,
@@ -44,7 +49,11 @@ api.interceptors.response.use(
         const refreshToken = getRefreshToken();
         if (!refreshToken) {
           clearTokens();
-          window.location.href = '/admin/login';
+          // Don't redirect if already on login/signup pages
+          const currentPath = window.location.pathname;
+          if (!currentPath.includes('/admin/login') && !currentPath.includes('/admin/signup')) {
+            window.location.href = '/admin/login';
+          }
           return Promise.reject(error);
         }
 
@@ -61,7 +70,11 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed, clear tokens and redirect to login
         clearTokens();
-        window.location.href = '/admin/login';
+        // Don't redirect if already on login/signup pages
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes('/admin/login') && !currentPath.includes('/admin/signup')) {
+          window.location.href = '/admin/login';
+        }
         return Promise.reject(refreshError);
       }
     }
