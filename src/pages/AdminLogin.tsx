@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authAPI, getErrorMessage } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { getErrorMessage } from '../services/api';
 import { Mail, Lock, AlertCircle, Loader } from 'lucide-react';
 
 export const AdminLogin = () => {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -16,8 +18,8 @@ export const AdminLogin = () => {
         setLoading(true);
 
         try {
-            await authAPI.login(email, password);
-            navigate('/admin/projects');
+            await login(email, password);
+            navigate('/');
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {
@@ -104,7 +106,7 @@ export const AdminLogin = () => {
                     {/* Signup Link */}
                     <p className="text-center text-gray-600">
                         Don't have an account?{' '}
-                        <Link to="/admin/signup" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+                        <Link to="/signup" className="text-indigo-600 hover:text-indigo-700 font-semibold">
                             Create one here
                         </Link>
                     </p>

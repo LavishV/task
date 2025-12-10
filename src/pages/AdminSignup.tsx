@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, User, AlertCircle, CheckCircle, Loader } from 'lucide-react';
-import { authAPI, getErrorMessage } from '../services/api';
+import { getErrorMessage } from '../services/api';
 
 export const AdminSignup = () => {
     const navigate = useNavigate();
+    const { register } = useAuth();
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -75,10 +77,10 @@ export const AdminSignup = () => {
 
         setLoading(true);
         try {
-            await authAPI.register(formData.username, formData.email, formData.password);
-            setSuccess('Account created successfully! Redirecting to login...');
+            await register(formData.username, formData.email, formData.password);
+            setSuccess('Account created successfully! Redirecting...');
             setTimeout(() => {
-                navigate('/admin/login', { state: { email: formData.email } });
+                navigate('/');
             }, 2000);
         } catch (err) {
             setError(getErrorMessage(err));
@@ -219,7 +221,7 @@ export const AdminSignup = () => {
                     {/* Login Link */}
                     <p className="text-center text-gray-600">
                         Already have an account?{' '}
-                        <Link to="/admin/login" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+                        <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-semibold">
                             Login here
                         </Link>
                     </p>
