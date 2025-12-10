@@ -11,6 +11,7 @@ import Admin from './server/models/Admin.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { mkdir } from 'fs/promises';
+import pathModule from 'path';
 
 dotenv.config();
 
@@ -36,6 +37,14 @@ app.use('/api/newsletter', newsletterRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK' });
+});
+
+// Serve static files from dist (production frontend build)
+app.use(express.static(pathModule.join(__dirname, 'dist')));
+
+// SPA fallback: serve index.html for all non-API routes (client-side routing)
+app.get('*', (req, res) => {
+  res.sendFile(pathModule.join(__dirname, 'dist', 'index.html'));
 });
 
 // Seed default admin if enabled
