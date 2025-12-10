@@ -45,7 +45,7 @@ app.get('/api/health-check', async (req, res) => {
     // Try to ping the database
     const mongoose = (await import('mongoose')).default;
     const isConnected = mongoose.connection.readyState === 1;
-    
+
     res.json({
       status: 'OK',
       database: isConnected ? 'connected' : 'disconnected',

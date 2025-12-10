@@ -14,7 +14,7 @@ export const getErrorMessage = (error: unknown): string => {
     if (error.response?.data?.error) return error.response.data.error;
     if (error.response?.data?.message) return error.response.data.message;
     if (error.response?.data?.errors?.[0]) return error.response.data.errors[0];
-    
+
     // HTTP status codes with friendly messages
     switch (error.response?.status) {
       case 400:
@@ -37,14 +37,14 @@ export const getErrorMessage = (error: unknown): string => {
         return error.response?.data?.message || `Error: ${error.response?.status || 'Unknown'}`;
     }
   }
-  
+
   // Network errors
   if (error instanceof Error) {
     if (error.message.includes('timeout')) return 'Request timeout. Check your connection.';
     if (error.message.includes('Network')) return 'Network error. Check your internet connection.';
     return error.message;
   }
-  
+
   return 'An unknown error occurred. Please try again.';
 };
 

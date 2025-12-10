@@ -1,11 +1,20 @@
+import { useState } from 'react';
 import { useProjects } from '../hooks/useProjects';
 import { sampleProjects } from '../data/sampleData';
+import { ProjectModal } from './ProjectModal';
 
 export const Projects = () => {
   const { projects, loading, error } = useProjects();
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Use sample projects as fallback when no API data
   const displayProjects = projects && projects.length > 0 ? projects : sampleProjects;
+
+  const handleReadMore = (project: any) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+  };
 
   if (loading) {
     return (
@@ -36,7 +45,10 @@ export const Projects = () => {
               <div className="p-4">
                 <h3 className="text-lg font-bold text-blue-600 mb-2">{project.name}</h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
-                <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded">
+                <button
+                  onClick={() => handleReadMore(project)}
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded transition"
+                >
                   READ MORE
                 </button>
               </div>
@@ -44,6 +56,13 @@ export const Projects = () => {
           ))}
         </div>
       </div>
+
+      {/* Project Modal */}
+      <ProjectModal
+        project={selectedProject}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </section>
   );
 };

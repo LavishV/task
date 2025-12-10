@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Smooth scroll behavior for navigation */
+html {
+  scroll-behavior: smooth;
+}
+
 /* Auto-Scrolling Testimonials Carousel */
 @keyframes scroll-left {
     0% {

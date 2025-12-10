@@ -88,9 +88,18 @@ export const ContactForm = () => {
             </button>
           </form>
           {message && (
-            <p className={`mt-4 text-center ${message.includes('successfully') ? 'text-green-200' : 'text-red-200'}`}>
-              {message}
-            </p>
+            <div className={`mt-4 p-4 rounded-lg flex items-start gap-3 ${
+              message.includes('successfully') 
+                ? 'bg-green-100 border border-green-400'
+                : 'bg-red-100 border border-red-400'
+            }`}>
+              <span className={message.includes('successfully') ? 'text-green-600 text-xl' : 'text-red-600 text-xl'}>
+                {message.includes('successfully') ? '✓' : '✕'}
+              </span>
+              <p className={message.includes('successfully') ? 'text-green-700' : 'text-red-700'}>
+                {message}
+              </p>
+            </div>
           )}
         </div>
       </div>
