@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, AlertCircle, CheckCircle, Loader } from 'lucide-react';
-import { authAPI } from '../services/api';
+import { authAPI, getErrorMessage } from '../services/api';
 
 export const AdminSignup = () => {
     const navigate = useNavigate();
@@ -80,12 +80,8 @@ export const AdminSignup = () => {
             setTimeout(() => {
                 navigate('/admin/login', { state: { email: formData.email } });
             }, 2000);
-        } catch (err: any) {
-            setError(
-                err.response?.data?.error ||
-                err.response?.data?.errors?.[0] ||
-                'Registration failed. Please try again.'
-            );
+        } catch (err) {
+            setError(getErrorMessage(err));
         } finally {
             setLoading(false);
         }

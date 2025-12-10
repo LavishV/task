@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useContact } from '../hooks/useContact';
+import { getErrorMessage } from '../services/api';
 
 export const ContactForm = () => {
   const { submitContact } = useContact();
@@ -20,14 +21,16 @@ export const ContactForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setMessage('');
     try {
       await submitContact(formData);
       setMessage('Thank you! Your inquiry has been submitted successfully.');
       setFormData({ fullName: '', email: '', mobileNumber: '', city: '' });
-      setTimeout(() => setMessage(''), 3000);
+      setTimeout(() => setMessage(''), 4000);
     } catch (error) {
-      setMessage('Error submitting form. Please try again.');
-      setTimeout(() => setMessage(''), 3000);
+      const errorMsg = getErrorMessage(error);
+      setMessage(`Error: ${errorMsg}`);
+      setTimeout(() => setMessage(''), 4000);
     } finally {
       setLoading(false);
     }

@@ -7,6 +7,47 @@ const API_URL = import.meta.env.VITE_API_URL || (
     : '/api'
 );
 
+// Helper to extract meaningful error messages
+export const getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    // Server returned an error response
+    if (error.response?.data?.error) return error.response.data.error;
+    if (error.response?.data?.message) return error.response.data.message;
+    if (error.response?.data?.errors?.[0]) return error.response.data.errors[0];
+    
+    // HTTP status codes with friendly messages
+    switch (error.response?.status) {
+      case 400:
+        return 'Invalid input. Please check your data.';
+      case 401:
+        return 'Unauthorized. Please login again.';
+      case 403:
+        return 'Access denied. You do not have permission.';
+      case 409:
+        return 'This account already exists.';
+      case 423:
+        return 'Account locked due to too many failed attempts. Try again later.';
+      case 429:
+        return 'Too many requests. Please wait a moment before trying again.';
+      case 500:
+        return 'Server error. Please try again later.';
+      case 503:
+        return 'Service unavailable. Please try again later.';
+      default:
+        return error.response?.data?.message || `Error: ${error.response?.status || 'Unknown'}`;
+    }
+  }
+  
+  // Network errors
+  if (error instanceof Error) {
+    if (error.message.includes('timeout')) return 'Request timeout. Check your connection.';
+    if (error.message.includes('Network')) return 'Network error. Check your internet connection.';
+    return error.message;
+  }
+  
+  return 'An unknown error occurred. Please try again.';
+};
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {

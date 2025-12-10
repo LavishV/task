@@ -36,7 +36,30 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK' });
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Health check with database connection verification
+app.get('/api/health-check', async (req, res) => {
+  try {
+    // Try to ping the database
+    const mongoose = (await import('mongoose')).default;
+    const isConnected = mongoose.connection.readyState === 1;
+    
+    res.json({
+      status: 'OK',
+      database: isConnected ? 'connected' : 'disconnected',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'ERROR',
+      database: 'disconnected',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Serve static files from dist (production frontend build)

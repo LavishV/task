@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNewsletter } from '../hooks/useNewsletter';
+import { getErrorMessage } from '../services/api';
 
 export const Footer = () => {
   const { subscribe } = useNewsletter();
@@ -12,14 +13,16 @@ export const Footer = () => {
     if (!email) return;
 
     setLoading(true);
+    setMessage('');
     try {
       await subscribe(email);
-      setMessage('Subscribed successfully!');
+      setMessage('Subscribed successfully! Thank you for joining our newsletter.');
       setEmail('');
-      setTimeout(() => setMessage(''), 3000);
+      setTimeout(() => setMessage(''), 4000);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Error subscribing');
-      setTimeout(() => setMessage(''), 3000);
+      const errorMsg = getErrorMessage(error);
+      setMessage(`Error: ${errorMsg}`);
+      setTimeout(() => setMessage(''), 4000);
     } finally {
       setLoading(false);
     }

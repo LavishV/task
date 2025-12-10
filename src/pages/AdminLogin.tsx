@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authAPI } from '../services/api';
+import { authAPI, getErrorMessage } from '../services/api';
 import { Mail, Lock, AlertCircle, Loader } from 'lucide-react';
 
 export const AdminLogin = () => {
@@ -18,12 +18,8 @@ export const AdminLogin = () => {
         try {
             await authAPI.login(email, password);
             navigate('/admin/projects');
-        } catch (err: any) {
-            const message =
-                err.response?.data?.error ||
-                err.response?.data?.errors?.[0] ||
-                'Login failed. Please try again.';
-            setError(message);
+        } catch (err) {
+            setError(getErrorMessage(err));
         } finally {
             setLoading(false);
         }
