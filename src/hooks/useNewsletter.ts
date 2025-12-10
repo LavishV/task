@@ -33,12 +33,17 @@ export const useNewsletter = () => {
 
   const subscribe = async (email: string) => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await newsletterAPI.subscribe(email);
       setSubscriptions([response.data, ...subscriptions]);
-      
       return response.data;
     } catch (err) {
-      throw err instanceof Error ? err : new Error('Failed to subscribe');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to subscribe to newsletter';
+      setError(errorMsg);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 

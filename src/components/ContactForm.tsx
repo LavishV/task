@@ -24,13 +24,14 @@ export const ContactForm = () => {
     setMessage('');
     try {
       await submitContact(formData);
-      setMessage('Thank you! Your inquiry has been submitted successfully.');
+      setMessage('✅ Thank you! Your inquiry has been submitted successfully.');
       setFormData({ fullName: '', email: '', mobileNumber: '', city: '' });
-      setTimeout(() => setMessage(''), 4000);
+      setTimeout(() => setMessage(''), 5000);
     } catch (error) {
       const errorMsg = getErrorMessage(error);
-      setMessage(`Error: ${errorMsg}`);
-      setTimeout(() => setMessage(''), 4000);
+      setMessage('❌ ' + errorMsg);
+      console.error('Contact form error:', error);
+      setTimeout(() => setMessage(''), 5000);
     } finally {
       setLoading(false);
     }

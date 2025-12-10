@@ -32,21 +32,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      const response = await fetch('/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${accessToken}` },
-      });
+      try {
+        const response = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${accessToken}` },
+          signal: AbortSignal.timeout(5000), // 5 second timeout
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        setUsername(data.username || data.email);
-        setEmail(data.email);
-        setIsAuthenticated(true);
-      } else {
-        removeFromStorage('accessToken');
-        removeFromStorage('refreshToken');
-        setIsAuthenticated(false);
-        setUsername(null);
-        setEmail(null);
+        if (response.ok) {
+          const data = await response.json();
+          setUsername(data.username || data.email);
+          setEmail(data.email);
+          setIsAuthenticated(true);
+        } else if (response.status === 401) {
+          // Token invalid, clear it
+          removeFromStorage('accessToken');
+          removeFromStorage('refreshToken');
+          setIsAuthenticated(false);
+          setUsername(null);
+          setEmail(null);
+        } else {
+          // Server error but token exists, assume authenticated
+          console.warn('Auth check failed with status:', response.status);
+          setIsAuthenticated(true);
+        }
+      } catch (fetchError) {
+        // Network error - backend might be down but token exists
+        const tokenExists = getFromStorage('accessToken') !== null;
+        if (tokenExists) {
+          console.warn('Backend temporarily unavailable, using cached auth');
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          setUsername(null);
+          setEmail(null);
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error);

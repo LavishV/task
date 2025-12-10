@@ -16,13 +16,14 @@ export const Footer = () => {
     setMessage('');
     try {
       await subscribe(email);
-      setMessage('Subscribed successfully! Thank you for joining our newsletter.');
+      setMessage('✅ Subscribed successfully! Thank you for joining our newsletter.');
       setEmail('');
-      setTimeout(() => setMessage(''), 4000);
+      setTimeout(() => setMessage(''), 5000);
     } catch (error) {
       const errorMsg = getErrorMessage(error);
-      setMessage(`Error: ${errorMsg}`);
-      setTimeout(() => setMessage(''), 4000);
+      setMessage('❌ ' + errorMsg);
+      console.error('Newsletter subscription error:', error);
+      setTimeout(() => setMessage(''), 5000);
     } finally {
       setLoading(false);
     }

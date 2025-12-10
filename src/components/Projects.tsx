@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useProjects } from '../hooks/useProjects';
 import { sampleProjects } from '../data/sampleData';
 import { ProjectModal } from './ProjectModal';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export const Projects = () => {
-  const { projects, loading, error } = useProjects();
+  const { projects, loading, error, refetch } = useProjects();
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -14,6 +15,10 @@ export const Projects = () => {
   const handleReadMore = (project: any) => {
     setSelectedProject(project);
     setIsModalOpen(true);
+  };
+
+  const handleRetry = () => {
+    refetch?.();
   };
 
   if (loading) {
@@ -32,8 +37,21 @@ export const Projects = () => {
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-4xl font-bold text-center mb-12">Our Projects</h2>
         {error && (
-          <div className="text-center text-blue-600 mb-6">
-            (Showing sample projects - API currently unavailable)
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-yellow-800 font-medium">Unable to load live projects</p>
+                <p className="text-yellow-700 text-sm mt-1">Showing sample projects. {refetch && (
+                  <button
+                    onClick={handleRetry}
+                    className="text-yellow-900 font-semibold hover:underline inline-flex items-center gap-1"
+                  >
+                    <RefreshCw size={14} /> Retry
+                  </button>
+                )}</p>
+              </div>
+            </div>
           </div>
         )}
         <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">

@@ -62,5 +62,5 @@ export const useProjects = () => {
     }
   };
 
-  return { projects, loading, error, createProject, updateProject, deleteProject, fetchProjects };
+  return { projects, loading, error, createProject, updateProject, deleteProject, fetchProjects, refetch: fetchProjects };
 };

@@ -1,11 +1,8 @@
 import axios from 'axios';
+import { getFromStorage, setInStorage, removeFromStorage } from '../utils/storage';
 
-// Use relative path /api in production (Render), localhost for development
-const API_URL = import.meta.env.VITE_API_URL || (
-  typeof window !== 'undefined' && window.location.hostname === 'localhost'
-    ? 'http://localhost:5000/api'
-    : '/api'
-);
+// Use relative path /api - works on both localhost (with backend) and Render
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Helper to extract meaningful error messages
 export const getErrorMessage = (error: unknown): string => {
@@ -55,55 +52,7 @@ const api = axios.create({
   },
 });
 
-// Safe storage with fallback to in-memory storage
-// Fixes: "Access to storage is not allowed" error on Render
-const memoryStorage: Record<string, string> = {};
-let storageAvailable = false;
-
-try {
-  const testKey = '__storage_test__';
-  localStorage.setItem(testKey, testKey);
-  localStorage.removeItem(testKey);
-  storageAvailable = true;
-} catch (e) {
-  console.warn('localStorage unavailable, using in-memory storage');
-  storageAvailable = false;
-}
-
-const getFromStorage = (key: string): string | null => {
-  try {
-    if (storageAvailable) {
-      return localStorage.getItem(key);
-    }
-    return memoryStorage[key] || null;
-  } catch (e) {
-    return memoryStorage[key] || null;
-  }
-};
-
-const setInStorage = (key: string, value: string) => {
-  try {
-    if (storageAvailable) {
-      localStorage.setItem(key, value);
-    }
-  } catch (e) {
-    console.warn(`Storage write failed for ${key}, using memory`);
-  }
-  memoryStorage[key] = value;
-};
-
-const removeFromStorage = (key: string) => {
-  try {
-    if (storageAvailable) {
-      localStorage.removeItem(key);
-    }
-  } catch (e) {
-    // continue
-  }
-  delete memoryStorage[key];
-};
-
-// Token management (now using safe storage)
+// Token management using safe storage
 const getAccessToken = () => getFromStorage('accessToken');
 const getRefreshToken = () => getFromStorage('refreshToken');
 const setTokens = (accessToken: string, refreshToken: string) => {
@@ -140,8 +89,8 @@ api.interceptors.response.use(
           clearTokens();
           // Don't redirect if already on login/signup pages
           const currentPath = window.location.pathname;
-          if (!currentPath.includes('/admin/login') && !currentPath.includes('/admin/signup')) {
-            window.location.href = '/admin/login';
+          if (!currentPath.includes('/login') && !currentPath.includes('/signup')) {
+            window.location.href = '/login';
           }
           return Promise.reject(error);
         }
@@ -161,8 +110,8 @@ api.interceptors.response.use(
         clearTokens();
         // Don't redirect if already on login/signup pages
         const currentPath = window.location.pathname;
-        if (!currentPath.includes('/admin/login') && !currentPath.includes('/admin/signup')) {
-          window.location.href = '/admin/login';
+        if (!currentPath.includes('/login') && !currentPath.includes('/signup')) {
+          window.location.href = '/login';
         }
         return Promise.reject(refreshError);
       }

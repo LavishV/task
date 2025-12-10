@@ -36,11 +36,17 @@ export const useContact = () => {
 
   const submitContact = async (data: { fullName: string; email: string; mobileNumber: string; city: string }) => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await contactAPI.create(data);
       setSubmissions([response.data, ...submissions]);
       return response.data;
     } catch (err) {
-      throw err instanceof Error ? err : new Error('Failed to submit contact form');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to submit contact form';
+      setError(errorMsg);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
