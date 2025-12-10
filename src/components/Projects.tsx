@@ -1,0 +1,49 @@
+import { useProjects } from '../hooks/useProjects';
+import { sampleProjects } from '../data/sampleData';
+
+export const Projects = () => {
+  const { projects, loading, error } = useProjects();
+
+  // Use sample projects as fallback when no API data
+  const displayProjects = projects && projects.length > 0 ? projects : sampleProjects;
+
+  if (loading) {
+    return (
+      <section id="projects" className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-12">Our Projects</h2>
+          <div className="text-center text-gray-500">Loading projects...</div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section id="projects" className="py-16 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-4xl font-bold text-center mb-12">Our Projects</h2>
+        {error && (
+          <div className="text-center text-blue-600 mb-6">
+            (Showing sample projects - API currently unavailable)
+          </div>
+        )}
+        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {displayProjects.map(project => (
+            <div key={project.id} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition">
+              {project.imageUrl && (
+                <img src={project.imageUrl} alt={project.name} className="w-full h-48 object-cover" />
+              )}
+              <div className="p-4">
+                <h3 className="text-lg font-bold text-blue-600 mb-2">{project.name}</h3>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
+                <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded">
+                  READ MORE
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};

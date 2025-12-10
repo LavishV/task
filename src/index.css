@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Auto-Scrolling Testimonials Carousel */
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(calc(-100% / 2));
+    }
+}
+
+.carousel-scroll {
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel-track {
+    animation: scroll-left 25s linear infinite;
+    will-change: transform;
+}
+
+.carousel-scroll:hover .carousel-track {
+    animation-play-state: paused;
+}
+
+/* Smooth transitions for carousel cards */
+.carousel-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.carousel-card:hover {
+    transform: translateY(-4px);
+}
