@@ -61,8 +61,8 @@ export const Footer = () => {
 
         {message && (
           <div className={`mt-4 p-4 rounded-lg flex items-start gap-3 ${message.includes('successfully') || message.includes('Thank')
-              ? 'bg-green-500 border border-green-400'
-              : 'bg-red-500 border border-red-400'
+            ? 'bg-green-500 border border-green-400'
+            : 'bg-red-500 border border-red-400'
             }`}>
             <span className="text-white text-xl font-bold">
               {message.includes('successfully') || message.includes('Thank') ? '✓' : '✕'}

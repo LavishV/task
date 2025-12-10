@@ -4,6 +4,13 @@ import { getFromStorage, setInStorage, removeFromStorage } from '../utils/storag
 // Use relative path /api - works on both localhost (with backend) and Render
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
+// Debug logging for API URL detection
+console.log('🔧 API Configuration:');
+console.log('  VITE_API_URL:', import.meta.env.VITE_API_URL || 'undefined (using /api)');
+console.log('  Hostname:', typeof window !== 'undefined' ? window.location.hostname : 'N/A (SSR)');
+console.log('  Resolved API_URL:', API_URL);
+console.log('  Environment:', import.meta.env.MODE);
+
 // Helper to extract meaningful error messages
 export const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
@@ -52,6 +59,9 @@ const api = axios.create({
   },
 });
 
+// Log successful API initialization
+console.log('✅ Axios instance created with baseURL:', api.defaults.baseURL);
+
 // Token management using safe storage
 const getAccessToken = () => getFromStorage('accessToken');
 const getRefreshToken = () => getFromStorage('refreshToken');
@@ -95,8 +105,8 @@ api.interceptors.response.use(
           return Promise.reject(error);
         }
 
-        // Call refresh endpoint
-        const response = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
+        // Call refresh endpoint using the configured api instance
+        const response = await api.post('/auth/refresh', { refreshToken });
         const { accessToken, refreshToken: newRefreshToken } = response.data;
 
         // Update tokens
